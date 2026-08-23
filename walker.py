@@ -88,6 +88,8 @@ if __name__ == "__main__":
   s,_=envs.reset()
   als=LinearLR(actor_optimizer,1,atlr,total_iters=num_rollouts*epochs)
   cls=LinearLR(critic_optimizer,1,ctlr,total_iters=num_rollouts*epochs)
+
+  # rollouts
   for ro in tqdm(range(num_rollouts)):
     states=np.zeros((num_envs,steps,dob))
     actions=np.zeros((num_envs,steps,daction))
@@ -110,6 +112,7 @@ if __name__ == "__main__":
             dones[:,i]=done
             rewards[:,i]=r
 
+        # bootstrap at termination or truncation
             if truncated.sum():
                 val=critic(torch.tensor(s[truncated],dtype=torch.float32,device=device)).reshape(-1).cpu().numpy()
                 rewards[:,i][truncated]+=gamma*val
@@ -119,6 +122,8 @@ if __name__ == "__main__":
         next_val=next_val.reshape(-1).cpu().numpy()
         gaes=np.zeros((num_envs,steps))
         dones=dones.astype(np.bool)
+
+        # compute GAE
         for j in reversed(range(steps)):
           mask=dones[:,j]
           if j==steps-1:
@@ -136,6 +141,7 @@ if __name__ == "__main__":
         logprob_tensor=torch.tensor(logprobs,dtype=torch.float32)
         gae_tensor=torch.tensor(gaes).to(device)
 
+    # training
     for e in range(epochs):
       indices=np.arange(steps)
       np.random.shuffle(indices)
