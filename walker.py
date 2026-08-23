@@ -39,22 +39,22 @@ class Critic(nn.Module):
     def forward(self,x):
         return self.backbone(x)
 
-def test(model,tenv,device="cuda",path=Path("./videos")):
+def test(model,tenv,device="cuda"):
 
-  done=False
+  don=False
   ts,_=tenv.reset()
   gt=0
   with torch.no_grad():
-    while not done:
+    while not don:
       mean,_=model(torch.tensor(ts,dtype=torch.float32,device=device))
-      ts,tr,done,t,_=tenv.step(mean.cpu().numpy())
+      ts,tr,don,t,_=tenv.step(mean.cpu().numpy())
       gt+=tr
       if t:
         break
-    tenv.close()
-  return gt
+  tenv.close()
 
-if __name__=="__main__":
+  return gt
+if __name__ == "__main__":
   dob=24
   daction=4
   actor=Actor(dob,daction)
@@ -75,8 +75,8 @@ if __name__=="__main__":
   num_envs=5
   envs=gym.make_vec(env_name,num_envs,vectorization_mode="async")
   tenv=gym.envs.make(env_name,render_mode="rgb_array")
-  tenv=RecordVideo(tenv,video_folder="./videos")
-  total_steps=1000000
+  tenv=RecordVideo(tenv,video_folder="./videos",episode_trigger=lambda x:True)
+  total_steps=5000000
   steps=4000
   gamma=0.99
   lam=0.9
@@ -105,7 +105,7 @@ if __name__=="__main__":
             dist=Normal(mu,logstd.exp())
             action=dist.sample()
             actions[:,i]=action.cpu().numpy()
-            logprobs[:,i]=dist.log_prob(action).cpu().sum(-1)
+            logprobs[:,i]=dist.log_prob(action).cpu().sum(-1).numpy()
             s,r,done,truncated,info=envs.step(action.clip(-1,1).cpu().numpy())
             dones[:,i]=done
             rewards[:,i]=r
