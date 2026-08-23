@@ -11,4 +11,6 @@
 
 ## Result
 
-<video src="https://raw.githubusercontent.com/lisensei/ppo-bipedalwalker/master/assets/demo.mp4" controls width="100%"></video>
+
+https://github.com/user-attachments/assets/5f7e9bf4-1e68-4733-8201-e9ab53c2be17
+
