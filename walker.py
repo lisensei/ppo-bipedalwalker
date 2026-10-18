@@ -109,7 +109,7 @@ if __name__ == "__main__":
             actions[:,i]=action.cpu().numpy()
             logprobs[:,i]=dist.log_prob(action).cpu().sum(-1).numpy()
             s,r,done,truncated,info=envs.step(action.clip(-1,1).cpu().numpy())
-            dones[:,i]=done
+            dones[:,i]=done|truncated
             rewards[:,i]=r
 
         # bootstrap at termination or truncation
